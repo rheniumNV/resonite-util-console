@@ -2,7 +2,7 @@
 
 [Resonite Util Console](https://util.resonite.love)
 
-[Resontie Metaverse](https://resonite.com/)に関連した便利機能を作ります。
+[Resontie](https://resonite.com/)に関連した便利機能を作ります。
 
 ## Inventory Viewer
 
