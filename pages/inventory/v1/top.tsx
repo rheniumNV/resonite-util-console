@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
 import { useRouter } from "next/router";
 import _ from "lodash";
 import styled from "styled-components";
@@ -144,7 +143,6 @@ const Index = () => {
     _.startsWith(linkRecordId, "R-");
   const linkTextFieldError = !(linkTextIsValid || !linkText);
 
-  const { register, handleSubmit, getValues } = useForm();
   const { links, pushLink, getLink, removeLink } = useLocalLinks();
 
   const [favoritesOpened, setFavoritesOpened] = React.useState<boolean>(true);
