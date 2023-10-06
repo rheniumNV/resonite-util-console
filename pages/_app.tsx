@@ -14,11 +14,11 @@ const App = ({ Component, pageProps }: AppProps) => {
   return (
     <>
       <Head>
-        <title>Neos Util Console</title>
-        <meta property="og:title" content="Neos Util Console" />
+        <title>Resonite Util Console</title>
+        <meta property="og:title" content="Resonite Util Console" />
         <meta
           property="og:description"
-          content="This site provides useful functions related to NeosVR."
+          content="This site provides useful functions related to Resonite."
         />
       </Head>
       <SafeHydrate>

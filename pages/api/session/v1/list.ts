@@ -8,7 +8,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       const { useEmap, rejectKeys = [] } = req.query;
       const response = await axios.get(
-        `https://cloudx.azurewebsites.net/api/sessions?includeEmptyHeadless=false&minActiveUsers=1`
+        `https://api.resonite.com/sessions?includeEmptyHeadless=false&minActiveUsers=1`
       );
       const result = _.map(response.data, (session) =>
         _(session)

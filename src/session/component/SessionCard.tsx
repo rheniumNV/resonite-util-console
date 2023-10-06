@@ -13,7 +13,7 @@ import ShareIcon from "@mui/icons-material/ArrowRightAlt";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import _ from "lodash";
 import { Link } from "@mui/material";
-import { copy, eraseNeosRichTextTag } from "../../helper";
+import { copy, eraseResoniteRichTextTag } from "../../helper";
 
 const ExpandMore = styled((props: any) => {
   const { expand, ...other } = props;
@@ -29,7 +29,7 @@ const ExpandMore = styled((props: any) => {
 export default function SessionCard({ session }) {
   const {
     name,
-    thumbnail,
+    thumbnailUrl,
     description,
     sessionUsers,
     hostUsername,
@@ -41,9 +41,12 @@ export default function SessionCard({ session }) {
   } = session;
   const [expanded, setExpanded] = React.useState(false);
 
-  const displayName = _.join(_.slice(eraseNeosRichTextTag(name), 0, 256), "");
+  const displayName = _.join(
+    _.slice(eraseResoniteRichTextTag(name), 0, 256),
+    ""
+  );
 
-  const sessionUrl = `http://cloudx.azurewebsites.net/open/session/${sessionId}`;
+  const sessionUrl = `http://api.resonite.com/open/session/${sessionId}`;
 
   const handleExpandClick = () => {
     setExpanded(!expanded);
@@ -59,7 +62,7 @@ export default function SessionCard({ session }) {
       <CardMedia
         component="img"
         height="194"
-        image={thumbnail}
+        image={thumbnailUrl}
         alt={displayName}
       />
       <CardContent>

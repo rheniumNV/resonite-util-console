@@ -139,7 +139,7 @@ const Index = () => {
   const { ownerId: linkOwnerId, recordId: linkRecordId } =
     getOwnerIdAndRecordIdFromRecordUri(linkText);
   const linkTextIsValid =
-    _.startsWith(linkText, "neosrec:///") &&
+    _.startsWith(linkText, "resrec:///") &&
     (_.startsWith(linkOwnerId, "U-") || _.startsWith(linkOwnerId, "G-")) &&
     _.startsWith(linkRecordId, "R-");
   const linkTextFieldError = !(linkTextIsValid || !linkText);
@@ -161,7 +161,7 @@ const Index = () => {
                 label={
                   Boolean(linkText)
                     ? "inventory link"
-                    : "neosrec:///U-xxxx/R-xxxx"
+                    : "resrec:///U-xxxx/R-xxxx"
                 }
                 variant="standard"
                 color={linkTextFieldError ? "primary" : "error"}
@@ -170,7 +170,7 @@ const Index = () => {
                   setLinkText(event.target.value);
                 }}
                 error={linkTextFieldError}
-                helperText={linkTextFieldError ? "neosrec///U-xxxx/R-xxxx" : ""}
+                helperText={linkTextFieldError ? "resrec///U-xxxx/R-xxxx" : ""}
               />
             </Stack>
           </Grid>
@@ -259,13 +259,8 @@ const Index = () => {
           <Collapse in={standardOpened} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
               <LinkItem
-                name="Neos Essentials"
-                ownerId="G-Neos"
-                path="Inventory"
-              />
-              <LinkItem
-                name="Essential Tools"
-                ownerId="G-Neos"
+                name="Resonite Essentials"
+                ownerId="G-Resonite"
                 path="Inventory"
               />
               <LinkItem

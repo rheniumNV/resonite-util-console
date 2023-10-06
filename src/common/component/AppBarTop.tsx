@@ -44,7 +44,7 @@ export default function AppBarTop() {
               sx={{ color: "white" }}
               href={"/"}
             >
-              Neos Util Console
+              Resonite Util Console
             </Typography>
             {appInfo && (
               <Typography

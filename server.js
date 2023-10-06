@@ -12,14 +12,14 @@ app.prepare().then(() => {
   const server = express();
 
   server.use(
-    "/neos/assets/",
+    "/resonite/assets/",
     createProxyMiddleware({
-      target: "https://assets.neos.com/assets",
+      target: "https://assets.resonite.com/",
       changeOrigin: true,
-        logLevel: 'debug',
-      pathRewrite: function(path, req) {
-        let newPath = path.replace("/neos/assets/","");
-        console.log(newPath)
+      logLevel: "debug",
+      pathRewrite: function (path, req) {
+        let newPath = path.replace("/resonite/assets/", "");
+        console.log(newPath);
         return newPath;
       },
     })

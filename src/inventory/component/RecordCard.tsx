@@ -1,13 +1,11 @@
 import React, { useState } from "react";
 import _ from "lodash";
 import {
-  downloadAssetAs7zbson,
-  downloadAssetAsJson,
-  downloadAssetAsNeosScript,
+  downloadAssetAsBrson as downloadAsset,
   useLocalLinks,
   LinkInterface,
 } from "../inventoryHelper";
-import { copy, eraseNeosRichTextTag, useLocalStorage } from "../../helper";
+import { copy, eraseResoniteRichTextTag, useLocalStorage } from "../../helper";
 import {
   Alert,
   TableRow,
@@ -71,7 +69,7 @@ export function RecordCard({
   const [modeState] = useLocalStorage("Util.Mode");
   const router = useRouter();
 
-  const displayName = _.slice(eraseNeosRichTextTag(name), 0, 256);
+  const displayName = _.slice(eraseResoniteRichTextTag(name), 0, 256);
 
   const [menuAnchorEl, setMenuAnchorEl] = React.useState<null | HTMLElement>(
     null
@@ -184,16 +182,16 @@ export function RecordCard({
                 <Divider />
                 <MenuButtonWithLoading
                   handleAction={async () => {
-                    await downloadAssetAs7zbson(assetId, name);
-                    setSnackbarMessage("Download 7zbson");
+                    await downloadAsset(assetId, name, assetUri);
+                    setSnackbarMessage("Download Asset");
                   }}
                   SuccessIcon={DownloadDoneIcon}
                   DefaultIcon={DownloadIcon}
-                  name={"Download 7zbson"}
+                  name={"Download Asset"}
                 />
                 {modeState === "advanced" && (
                   <>
-                    <MenuButtonWithLoading
+                    {/* <MenuButtonWithLoading
                       handleAction={async () => {
                         await downloadAssetAsJson(assetId, name);
                         setSnackbarMessage("Download Json");
@@ -201,8 +199,8 @@ export function RecordCard({
                       SuccessIcon={DownloadDoneIcon}
                       DefaultIcon={DownloadIcon}
                       name={"Download Json"}
-                    />
-                    <MenuButtonWithLoading
+                    /> */}
+                    {/* <MenuButtonWithLoading
                       handleAction={async () => {
                         await downloadAssetAsNeosScript(assetId, name);
                         setSnackbarMessage("Download NeosScript");
@@ -210,16 +208,16 @@ export function RecordCard({
                       SuccessIcon={DownloadDoneIcon}
                       DefaultIcon={DownloadIcon}
                       name={"Download NeosScript"}
-                    />
-                    <MenuButtonWithLoading
+                    /> */}
+                    {/* <MenuButtonWithLoading
                       handleAction={async () => {
                         window.open(`/inspector/v1/viewer?assetId=${assetId}`);
                       }}
                       SuccessIcon={DownloadDoneIcon}
                       DefaultIcon={InspectIcon}
                       name={"Inspect β"}
-                    />
-                    <MenuButtonWithLoading
+                    /> */}
+                    {/* <MenuButtonWithLoading
                       handleAction={async () => {
                         window.open(
                           `/inspector/v1/analyzer?assetId=${assetId}`
@@ -228,7 +226,7 @@ export function RecordCard({
                       SuccessIcon={DownloadDoneIcon}
                       DefaultIcon={AnalyzeIcon}
                       name={"Analyze β"}
-                    />
+                    /> */}
                   </>
                 )}
               </>

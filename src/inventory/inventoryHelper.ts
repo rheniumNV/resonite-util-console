@@ -2,7 +2,13 @@ import _ from "lodash";
 import useSWR from "swr";
 import { useEffect } from "react";
 import { useRouter } from "next/router";
-import {download, downloadBinary, fetcher, parseJson, useLocalStorage} from "../helper";
+import {
+  download,
+  downloadBinary,
+  fetcher,
+  parseJson,
+  useLocalStorage,
+} from "../helper";
 
 export function getOwnerIdAndRecordIdFromRecordUri(recordUri: string) {
   const strList = _.split(recordUri, "/");
@@ -27,13 +33,13 @@ function getAssetOwnerId({ ownerId, recordType, assetUri }: RecordInterface) {
 
 function getWebThumbnailUri({ thumbnailUri }: RecordInterface) {
   return thumbnailUri
-    ? "https://assets.neos.com/assets/" +
+    ? "https://assets.resonite.com/" +
         _.first(_.split(_.last(_.split(thumbnailUri, "/")), "."))
     : undefined;
 }
 
 function getRecordUri({ ownerId, id }: RecordInterface) {
-  return `neosrec:///${ownerId}/${id}`;
+  return `resrec:///${ownerId}/${id}`;
 }
 
 function getAssetId({ assetUri }: RecordInterface) {
@@ -181,8 +187,15 @@ export function useLinkRedirect(ownerId: string, recordId: string) {
   }, [data]);
 }
 
-export async function downloadAssetAs7zbson(assetId: string, name: string) {
-  await downloadBinary(`/neos/assets/${assetId}`, `${name}.7zbson`);
+export async function downloadAssetAsBrson(
+  assetId: string,
+  name: string,
+  assetUri: string
+) {
+  await downloadBinary(
+    `/resonite/assets/${assetId}`,
+    `${name}.${assetUri.endsWith("7zbson") ? "7zbson" : "brson"}`
+  );
 }
 export async function downloadAssetAsJson(assetId: string, name: string) {
   await download(`https://decompress.kokoa.dev/?id=${assetId}`, `${name}.json`);

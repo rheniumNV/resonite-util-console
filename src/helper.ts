@@ -49,7 +49,7 @@ export function parseJson(str: string, fallbackValue: any = {}) {
   }
 }
 
-export function eraseNeosRichTextTag(text: string): string {
+export function eraseResoniteRichTextTag(text: string): string {
   return text.replace(
     /<align=(left|center|right)>|<\/align>|<color=[^<>]*>|<\/color>|<b>|<\/b>|<i>|<\/i>|<lowercase>|<\/lowercase>|<uppercase>|<\/uppercase>|<smallcaps>|<\/smallcaps>|<mark=[^<>]>|<\/mark>|<noparse>|<\/noparse>|<nobr>|<\/nobr>|<size=[^<>]*>|<\/size>|<s>|<\/s>|<u>|<\/u>|<sub>|<\/sub>|<sup>|<\/sup>/g,
     ""

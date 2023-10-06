@@ -11,7 +11,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         ? "users"
         : "groups";
       const response = await axios.get(
-        `https://cloudx.azurewebsites.net/api/${ownerType}/${ownerId}/records/${recordId}`
+        `https://api.resonite.com/${ownerType}/${ownerId}/records/${recordId}`
       );
       const { name, path } = response.data;
       const fiexdPath = _.join([path, name], "\\");
