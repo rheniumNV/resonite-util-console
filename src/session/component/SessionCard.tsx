@@ -45,7 +45,7 @@ export default function SessionCard({ session }) {
     ""
   );
 
-  const sessionUrl = `http://api.resonite.com/open/session/${sessionId}`;
+  const sessionUrl = `https://api.resonite.com/open/session/${sessionId}`;
 
   const handleExpandClick = () => {
     setExpanded(!expanded);

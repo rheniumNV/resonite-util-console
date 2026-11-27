@@ -2,13 +2,19 @@
 
 [Resonite Util Console](https://util.resonite.love)
 
-[Resontie](https://resonite.com/)に関連した便利機能を作ります。
+[Resonite](https://resonite.com/)に関連した便利機能を作ります。
 
 ## Inventory Viewer
 
 [Inventory Viewer](https://util.resonite.love/inventory/v1/top)
 
 パブリックフォルダを閲覧できます。
+
+## Session Viewer
+
+[Session Viewer](https://util.resonite.love/session/v1/top)
+
+参加者がいる公開セッションを一覧できます。
 
 ## Docker で起動する
 
