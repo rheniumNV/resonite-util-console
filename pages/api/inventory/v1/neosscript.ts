@@ -1,6 +1,26 @@
-import { NextApiRequest, NextApiResponse } from "next";
 import axios from "axios";
 import _ from "lodash";
+import { createGetHandler } from "../../../../src/server/apiHandler";
+
+const SLOT_MEMBER_NAMES = [
+  "Name",
+  "Tag",
+  "Active",
+  "Position",
+  "Rotation",
+  "Scale",
+  "OrderOffset",
+];
+
+// コンポーネントの Data から ID / UpdateOrder 以外のメンバーを取り出す
+function getComponentMembers(
+  Data: Record<string, any>
+): { key: string; data: any }[] {
+  return _(Data)
+    .map((data, key) => ({ key, data }))
+    .reject(({ key }) => _.includes(["ID", "UpdateOrder"], key))
+    .value();
+}
 
 function isArray(value) {
   return _.isArray(value);
@@ -14,10 +34,6 @@ function isValidUUID(str) {
   const uuidRegexExp =
     /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi;
   return typeof str == "string" && uuidRegexExp.test(str);
-}
-
-function jsonStringify(value) {
-  return JSON.stringify(value);
 }
 
 function isLinkedId(id, refCountMap) {
@@ -45,8 +61,9 @@ function resolveData(value, refCountMap) {
       })
       .join(",")}}`;
   } else {
-    const useRelay = _.size(_.get(refCountMap, value, [])) > 1;
-    return useRelay ? `relay.getRefId('${value}')` : `${jsonStringify(value)}`;
+    return isLinkedId(value, refCountMap)
+      ? `relay.getRefId('${value}')`
+      : JSON.stringify(value);
   }
 }
 
@@ -89,13 +106,7 @@ function resolveComponent(
     addProp(interfaceVariableName);
   }
 
-  const props = _(Data)
-    .map<{ [name: string]: any }>((data, key) => ({
-      key,
-      data,
-    }))
-    .reject(({ key }) => _.includes(["ID", "UpdateOrder"], key))
-    .value();
+  const props = getComponentMembers(Data);
   return `<component name="${Type}" id={${resolveId(
     ID,
     refCountMap
@@ -134,12 +145,6 @@ function resolveSlot(
     ID,
     "Persistent-ID": PersistentId,
     Name,
-    Tag,
-    Active,
-    Position,
-    Rotation,
-    Scale,
-    OrderOffset,
     Components: { Data: Components },
     Children,
   } = slot;
@@ -157,13 +162,11 @@ function resolveSlot(
     PersistentId,
     refCountMap
   )}}>
-  ${resolveMember("Name", Name.ID, Name.Data, refCountMap)}
-  ${resolveMember("Tag", Tag.ID, Tag.Data, refCountMap)}
-  ${resolveMember("Active", Active.ID, Active.Data, refCountMap)}
-  ${resolveMember("Position", Position.ID, Position.Data, refCountMap)}
-  ${resolveMember("Rotation", Rotation.ID, Rotation.Data, refCountMap)}
-  ${resolveMember("Scale", Scale.ID, Scale.Data, refCountMap)}
-  ${resolveMember("OrderOffset", OrderOffset.ID, OrderOffset.Data, refCountMap)}
+  ${_(SLOT_MEMBER_NAMES)
+    .map((name) =>
+      resolveMember(name, slot[name].ID, slot[name].Data, refCountMap)
+    )
+    .join("\n  ")}
   </slotData>
   <components>
   ${_(Components)
@@ -212,44 +215,24 @@ function createMemberRefList(member) {
 
 function createComponentRefList({ Data }) {
   const { ID, "persistent-ID": PersistentId, UpdateOrder } = Data;
-  const props = _(Data)
-    .map<any>((data, key) => ({
-      key,
-      data,
-    }))
-    .reject(({ key }) => _.includes(["ID", "UpdateOrder"], key))
-    .value();
   return [
     ID,
     PersistentId,
     UpdateOrder.ID,
-    ..._(props).map(createMemberRefList).flatMap().value(),
+    ..._(getComponentMembers(Data)).map(createMemberRefList).flatMap().value(),
   ];
 }
 function createSlotRefList(slot) {
   const {
     ID,
     "Persistent-ID": PersistentId,
-    Name,
-    Tag,
-    Active,
-    Position,
-    Rotation,
-    Scale,
-    OrderOffset,
     Components: { Data: Components },
     Children,
   } = slot;
   return [
     ID,
     PersistentId,
-    Name.ID,
-    Tag.ID,
-    Active.ID,
-    Position.ID,
-    Rotation.ID,
-    Scale.ID,
-    OrderOffset.ID,
+    ..._.map(SLOT_MEMBER_NAMES, (name) => slot[name].ID),
     ..._(Components ?? [])
       .map(createComponentRefList)
       .flatMap()
@@ -261,46 +244,36 @@ function createSlotRefList(slot) {
   ];
 }
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
-  if (req.method === "GET") {
-    const { id } = req.query;
-    axios
-      .get(`https://decompress.kokoa.dev/?id=${id}`)
-      .then(({ data }) => {
-        const rootSlot = _.get(data, "Object", {});
-        const assets = _.get(data, "Assets", []);
-        const typeVersions = _.get(data, "TypeVersions", []);
-        const propList = [];
-        const addProp = (prop) => {
-          propList.push(prop);
-        };
-        const refCountMap = _([
-          ...createSlotRefList(rootSlot),
-          ..._(assets).map(createComponentRefList).flatMap().value(),
-        ])
-          .groupBy()
-          .value();
-        const mainString = resolveSlot(
-          rootSlot,
-          refCountMap,
-          assets,
-          typeVersions,
-          addProp
-        );
-        const propDefine = _.join(propList, ",");
-        res.send(
-          `import React from "react";
+export default createGetHandler(async (req, res) => {
+  const { data } = await axios.get(
+    `https://decompress.kokoa.dev/?id=${req.query.id}`
+  );
+  const rootSlot = _.get(data, "Object", {});
+  const assets = _.get(data, "Assets", []);
+  const typeVersions = _.get(data, "TypeVersions", []);
+  const propList = [];
+  const addProp = (prop) => {
+    propList.push(prop);
+  };
+  const refCountMap = _([
+    ...createSlotRefList(rootSlot),
+    ..._(assets).map(createComponentRefList).flatMap().value(),
+  ])
+    .groupBy()
+    .value();
+  const mainString = resolveSlot(
+    rootSlot,
+    refCountMap,
+    assets,
+    typeVersions,
+    addProp
+  );
+  const propDefine = _.join(propList, ",");
+  res.send(
+    `import React from "react";
           import { RelayManager } from "lib/neosScript/util/RelayManager";
           import { generateId } from "lib/neosScript/util";
           import { Member, TypeVersion } from "lib/neosScript/core/Member";
           export default ({${propDefine}})=>{const relay = new RelayManager(); return (${mainString});}`
-        );
-      })
-      .catch((error) => {
-        console.error(error);
-        res.status(500).send("error");
-      });
-  } else {
-    res.status(404).send("error");
-  }
-};
+  );
+});
