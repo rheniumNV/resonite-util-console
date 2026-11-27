@@ -3,13 +3,13 @@ import useSWR from "swr";
 import _ from "lodash";
 import { fetcher } from "../../../src/helper";
 import SessionCard from "./SessionCard";
-import { Box, CircularProgress, Grid, Container } from "@mui/material";
+import { Alert, Box, CircularProgress, Grid, Container } from "@mui/material";
 
 // 初回に表示する件数と、スクロールで追加する件数
 const PAGE_SIZE = 20;
 
 export default function Index() {
-  const { data: sessions } = useSWR<any[]>(
+  const { data: sessions, error } = useSWR<any[]>(
     "/api/session/v1/list?rejectKeys=tags",
     fetcher
   );
@@ -36,6 +36,11 @@ export default function Index() {
 
   return (
     <Container sx={{ paddingTop: 6, paddingBottom: 6 }}>
+      {error && (
+        <Alert severity="error" sx={{ marginBottom: 2 }}>
+          Failed to load sessions. Please try again later.
+        </Alert>
+      )}
       <Grid container spacing={2}>
         {_.map(_.take(sessions ?? [], visibleCount), (session, index) => {
           return (

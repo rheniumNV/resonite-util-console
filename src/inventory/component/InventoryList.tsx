@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { toViewerUrl, useInventory } from "../inventoryHelper";
 import { RecordCard } from "./RecordCard";
 import {
+  Alert,
   Container,
   Breadcrumbs,
   Link,
@@ -42,7 +43,7 @@ export default function InventoryList() {
 
   // router.query.slug はデコード済みのセグメント
   const path = slug ? _.join(_.castArray(slug), "/") : undefined;
-  const { data } = useInventory(
+  const { data, error } = useInventory(
     typeof ownerId === "string" ? ownerId : undefined,
     path
   );
@@ -85,6 +86,11 @@ export default function InventoryList() {
         </Breadcrumbs>
       </Box>
 
+      {error && (
+        <Alert severity="error" sx={{ marginBottom: 2 }}>
+          Failed to load this folder. Please try again later.
+        </Alert>
+      )}
       <TableContainer component={Paper}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
