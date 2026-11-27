@@ -2,25 +2,16 @@ import { useCallback, useSyncExternalStore } from "react";
 
 export async function download(targetUrl: string, fileName: string) {
   const response = await fetch(targetUrl);
-  const data = await response.text();
-  const blob = new Blob([data]);
-  const element = document.createElement("a");
-  element.href = window.URL.createObjectURL(blob);
-  element.setAttribute("download", fileName);
-  document.body.appendChild(element);
-  element.click();
-  element.remove();
-}
-
-export async function downloadBinary(targetUrl: string, fileName: string) {
-  const response = await fetch(targetUrl);
   const blob = await response.blob();
+  const objectUrl = window.URL.createObjectURL(blob);
   const element = document.createElement("a");
-  element.href = window.URL.createObjectURL(blob);
+  element.href = objectUrl;
   element.setAttribute("download", fileName);
   document.body.appendChild(element);
   element.click();
   element.remove();
+  // 即座に解放するとダウンロードが始まらないブラウザがあるため少し待つ
+  setTimeout(() => window.URL.revokeObjectURL(objectUrl), 1000);
 }
 
 export function copy(text: string): void {
@@ -45,7 +36,9 @@ function subscribeLocalStorage(listener: () => void) {
 
 // 同じキーを使う全コンポーネントが同じ値を参照するよう、
 // localStorage を外部ストアとして購読する。
-export function useLocalStorage(key: string) {
+export function useLocalStorage(
+  key: string
+): [string | null, (newData: string) => void] {
   const state = useSyncExternalStore(
     subscribeLocalStorage,
     () => localStorage.getItem(key),

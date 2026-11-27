@@ -1,11 +1,7 @@
 import React from "react";
 import _ from "lodash";
 import { useRouter } from "next/router";
-import {
-  getPath,
-  useInventory,
-  useInventoryLinkActive,
-} from "../inventoryHelper";
+import { getPath, useInventory } from "../inventoryHelper";
 import { RecordCard } from "./RecordCard";
 import {
   Container,
@@ -24,7 +20,7 @@ import {
 import { useLocalStorage } from "../../helper";
 
 function InventoryLink({ name, ownerId, path }) {
-  const { data } = useInventoryLinkActive(ownerId, path);
+  const { data } = useInventory(ownerId, path);
   const dataSize = _.size(data);
   const link = `/inventory/v1/viewer/${ownerId}/${path}`;
   if (dataSize > 0) {
@@ -101,42 +97,9 @@ export default function InventoryList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {_.map(
-              data,
-              ({
-                id,
-                recordType,
-                name,
-                assetUri,
-                webThumbnailUri,
-                recordUri,
-                assetId,
-                viewerLink,
-                link,
-                ownerName,
-                lastModificationTime,
-                lastModifyingUserId,
-                assetOwnerId,
-                creationTime,
-              }) => (
-                <RecordCard
-                  key={id}
-                  recordType={recordType}
-                  name={name}
-                  assetUri={assetUri}
-                  viewerLink={viewerLink}
-                  webThumbnailUri={webThumbnailUri}
-                  recordUri={recordUri}
-                  assetId={assetId}
-                  link={link}
-                  ownerName={ownerName}
-                  lastModificationTime={lastModificationTime}
-                  lastModifyingUserId={lastModifyingUserId}
-                  assetOwnerId={assetOwnerId}
-                  creationTime={creationTime}
-                />
-              )
-            )}
+            {_.map(data, (record) => (
+              <RecordCard key={record.id} {...record} />
+            ))}
           </TableBody>
         </Table>
       </TableContainer>

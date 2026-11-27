@@ -3,7 +3,7 @@ import _ from "lodash";
 import {
   downloadAssetAsBrson as downloadAsset,
   useLocalLinks,
-  LinkInterface,
+  InventoryRecord,
 } from "../inventoryHelper";
 import { copy, eraseResoniteRichTextTag, useLocalStorage } from "../../helper";
 import {
@@ -32,22 +32,6 @@ import moment from "moment";
 import MenuButtonWithLoading from "../../common/component/MenuButtonWithLoading";
 import { useRouter } from "next/router";
 
-interface CardInput {
-  recordType: string;
-  name: string;
-  recordUri: string;
-  viewerLink?: string;
-  webThumbnailUri?: string;
-  assetId?: string;
-  assetUri?: string;
-  link?: LinkInterface;
-  ownerName: string;
-  lastModificationTime: string;
-  lastModifyingUserId: string;
-  assetOwnerId: string;
-  creationTime: string;
-}
-
 export function RecordCard({
   recordType,
   name,
@@ -62,7 +46,7 @@ export function RecordCard({
   lastModifyingUserId,
   assetOwnerId,
   creationTime,
-}: CardInput) {
+}: InventoryRecord) {
   const [showButton, setShowButton] = useState<boolean>(false);
   const { getLink, pushLink, removeLink } = useLocalLinks();
   const isFav = !!getLink(_.get(link, "link"));
