@@ -1,6 +1,8 @@
 import _ from "lodash";
 import {
+  ID_PATTERNS,
   createGetJsonHandler,
+  getQueryString,
   getRecordsUrl,
   parseListQuery,
 } from "../../../../src/server/apiHandler";
@@ -17,11 +19,12 @@ function sortRecords(records) {
 
 export default createGetJsonHandler(async (req) => {
   const { useSort } = req.query;
-  const ownerId = req.query.ownerId as string;
-  const path = req.query.path as string;
+  const ownerId = getQueryString(req, "ownerId", ID_PATTERNS.ownerId);
+  const path = getQueryString(req, "path");
   const keys = parseListQuery(req.query.keys);
 
-  const fixedPath = encodeURI(_.replace(path, /\//g, "\\"));
+  // "&" や "#" を含むフォルダ名でクエリが壊れないよう encodeURIComponent を使う
+  const fixedPath = encodeURIComponent(_.replace(path, /\//g, "\\"));
   const fetched = await cachedGet(
     `${getRecordsUrl(ownerId)}?path=${fixedPath}`,
     TTL.records

@@ -1,5 +1,9 @@
 import _ from "lodash";
-import { createGetHandler } from "../../../../src/server/apiHandler";
+import {
+  ID_PATTERNS,
+  createGetHandler,
+  getQueryString,
+} from "../../../../src/server/apiHandler";
 import { TTL, cachedGet } from "../../../../src/server/cache";
 
 const SLOT_MEMBER_NAMES = [
@@ -246,7 +250,11 @@ function createSlotRefList(slot) {
 
 export default createGetHandler(async (req, res) => {
   const data = await cachedGet(
-    `https://decompress.kokoa.dev/?id=${req.query.id}`,
+    `https://decompress.kokoa.dev/?id=${getQueryString(
+      req,
+      "id",
+      ID_PATTERNS.assetId
+    )}`,
     TTL.asset
   );
   const rootSlot = _.get(data, "Object", {});
