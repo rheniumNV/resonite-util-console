@@ -9,3 +9,11 @@
 [Inventory Viewer](https://util.resonite.love/inventory/v1/top)
 
 パブリックフォルダを閲覧できます。
+
+## Docker で起動する
+
+```bash
+docker compose up -d --build
+```
+
+http://localhost:3000 で起動します。ホスト側のポートを変える場合は `HOST_PORT` を指定してください（例: `HOST_PORT=8080 docker compose up -d --build`）。
