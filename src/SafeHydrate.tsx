@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import { useLocalStorage } from "../src/helper";
 interface SafeHydrateProps {
-  children: JSX.Element | JSX.Element[];
+  children: React.JSX.Element | React.JSX.Element[];
 }
 
 const SafeHydrate = (props: SafeHydrateProps) => {

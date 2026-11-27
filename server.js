@@ -16,7 +16,7 @@ app.prepare().then(() => {
     createProxyMiddleware({
       target: "https://assets.resonite.com/",
       changeOrigin: true,
-      logLevel: "debug",
+      logger: console,
       pathRewrite: function (path, req) {
         let newPath = path.replace("/resonite/assets/", "");
         console.log(newPath);
