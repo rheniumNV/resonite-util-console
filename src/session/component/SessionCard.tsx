@@ -13,7 +13,7 @@ import ShareIcon from "@mui/icons-material/ArrowRightAlt";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import _ from "lodash";
 import { Link } from "@mui/material";
-import { copy, eraseResoniteRichTextTag } from "../../helper";
+import { copy, eraseResoniteRichTextTag, toWebAssetUrl } from "../../helper";
 
 const ExpandMore = styled((props: any) => {
   const { expand, ...other } = props;
@@ -62,7 +62,7 @@ export default function SessionCard({ session }) {
       <CardMedia
         component="img"
         height="194"
-        image={thumbnailUrl}
+        image={toWebAssetUrl(thumbnailUrl)}
         alt={displayName}
       />
       <CardContent>

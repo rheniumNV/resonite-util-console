@@ -55,3 +55,15 @@ export function eraseResoniteRichTextTag(text: string): string {
     ""
   );
 }
+
+// resdb:///<hash>.<ext> 形式をブラウザで表示可能な URL に変換する
+// http(s) の URL はそのまま返す
+export function toWebAssetUrl(uri?: string | null): string | undefined {
+  if (!uri) return undefined;
+  if (uri.startsWith("resdb:")) {
+    const fileName = uri.split("/").pop() ?? "";
+    const hash = fileName.split(".")[0];
+    return hash ? `https://assets.resonite.com/${hash}` : undefined;
+  }
+  return uri;
+}
