@@ -11,7 +11,7 @@ export default function MenuButtonWithLoading({
 }) {
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
-  const timer = React.useRef<number>();
+  const timer = React.useRef<number | undefined>(undefined);
 
   React.useEffect(() => {
     return () => {
