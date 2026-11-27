@@ -36,7 +36,9 @@ function sortItem(list, useSort) {
 export default (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
     const { ownerId, path, useEmap, keys, useSort } = req.query;
-    const ownerType = _.startsWith("ownerId", "U-") ? "users" : "groups";
+    const ownerType = _.startsWith(ownerId as string, "U-")
+      ? "users"
+      : "groups";
 
     const fixedPath = encodeURI(
       _.replace(path as string, new RegExp("/", "g"), "\\")
