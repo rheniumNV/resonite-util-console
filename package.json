@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "node server.js",
     "build": "npx next build",
-    "start": "node server.js"
+    "start": "node server.js",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"**/*.{js,ts,tsx}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,tsx}\""
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -30,6 +33,7 @@
     "@types/node": "^20.19.25",
     "@types/react": "^19.3.3",
     "@types/react-dom": "^19.3.0",
+    "prettier": "2.8.8",
     "typescript": "^5.9.3"
   }
 }

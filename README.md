@@ -16,6 +16,18 @@
 
 参加者がいる公開セッションを一覧できます。
 
+## 開発
+
+```bash
+npm ci
+npm run dev           # http://localhost:3000
+npm run typecheck     # 型チェック
+npm run format:check  # Prettier の整形チェック (npm run format で整形)
+npm run build
+```
+
+PR と main への push では、GitHub Actions で型チェック・整形チェック・ビルドが実行されます。
+
 ## Docker で起動する
 
 ```bash
