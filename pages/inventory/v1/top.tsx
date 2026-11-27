@@ -3,7 +3,8 @@ import { useRouter } from "next/router";
 import _ from "lodash";
 import styled from "styled-components";
 import {
-  getOwnerIdAndRecordIdFromRecordUri,
+  formatInventoryPath,
+  parseRecordUri,
   useLocalLinks,
 } from "../../../src/inventory/inventoryHelper";
 import {
@@ -33,6 +34,13 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import CloudIcon from "@mui/icons-material/Cloud";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
+
+const COMMON_LINKS = [
+  { name: "Resonite Essentials", ownerId: "G-Resonite", path: "Inventory" },
+  { name: "Creator Jam Public", ownerId: "U-Medra", path: "Inventory\\CJ" },
+  { name: "JP Publics", ownerId: "G-Shared-Project-rheni", path: "Inventory" },
+  { name: "1Public Folders", ownerId: "U-Staccato", path: "Inventory" },
+];
 
 const TextFiledStyle = styled.input`
   width: 400px;
@@ -83,7 +91,7 @@ function LinkItem({
       </ListItemIcon>
       <ListItemText
         primary={name}
-        secondary={`${ownerId} / ${_.replace(path, /\\/g, " / ")}`}
+        secondary={`${ownerId} / ${formatInventoryPath(path)}`}
         onClick={handleOpen}
       />
       {Boolean(removeLink) && Boolean(link) && (
@@ -103,10 +111,8 @@ function LinkItem({
               {`Do you really want to remove "${name}" from your favorites?`}
             </DialogTitle>
             <DialogContent>
-              <DialogContentText>{`${ownerId} / ${_.replace(
-                path,
-                /\\/g,
-                " / "
+              <DialogContentText>{`${ownerId} / ${formatInventoryPath(
+                path
               )} / ${name}`}</DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -135,12 +141,11 @@ const Index = () => {
   const router = useRouter();
 
   const [linkText, setLinkText] = useState("");
-  const { ownerId: linkOwnerId, recordId: linkRecordId } =
-    getOwnerIdAndRecordIdFromRecordUri(linkText);
-  const linkTextIsValid =
-    _.startsWith(linkText, "resrec:///") &&
-    (_.startsWith(linkOwnerId, "U-") || _.startsWith(linkOwnerId, "G-")) &&
-    _.startsWith(linkRecordId, "R-");
+  const {
+    ownerId: linkOwnerId,
+    recordId: linkRecordId,
+    isValid: linkTextIsValid,
+  } = parseRecordUri(linkText);
   const linkTextFieldError = !(linkTextIsValid || !linkText);
 
   const { links, pushLink, getLink, removeLink } = useLocalLinks();
@@ -251,31 +256,14 @@ const Index = () => {
             <ListItemIcon>
               <CloudIcon />
             </ListItemIcon>
-            <ListItemText primary="Common (4)" />
+            <ListItemText primary={`Common (${_.size(COMMON_LINKS)})`} />
             {standardOpened ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </ListItemButton>
           <Collapse in={standardOpened} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
-              <LinkItem
-                name="Resonite Essentials"
-                ownerId="G-Resonite"
-                path="Inventory"
-              />
-              <LinkItem
-                name="Creator Jam Public"
-                ownerId="U-Medra"
-                path="Inventory\CJ"
-              />
-              <LinkItem
-                name="JP Publics"
-                ownerId="G-Shared-Project-rheni"
-                path="Inventory"
-              />
-              <LinkItem
-                name="1Public Folders"
-                ownerId="U-Staccato"
-                path="Inventory"
-              />
+              {_.map(COMMON_LINKS, (link) => (
+                <LinkItem {...link} key={`${link.ownerId}/${link.name}`} />
+              ))}
             </List>
           </Collapse>
         </List>

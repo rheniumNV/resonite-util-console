@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
-import { useLocalStorage } from "../src/helper";
+import { useLocalStorage } from "./helper";
 interface SafeHydrateProps {
   children: React.JSX.Element | React.JSX.Element[];
 }
@@ -11,11 +11,7 @@ const SafeHydrate = (props: SafeHydrateProps) => {
 
   const [_state, setModeState] = useLocalStorage("Util.Mode");
   useEffect(() => {
-    if (
-      mode &&
-      typeof mode === "string" &&
-      typeof setModeState === "function"
-    ) {
+    if (mode && typeof mode === "string") {
       setModeState(mode);
     }
   }, []);

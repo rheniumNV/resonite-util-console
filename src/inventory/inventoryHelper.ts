@@ -4,18 +4,29 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 import {
   download,
-  downloadBinary,
   fetcher,
   parseJson,
   toWebAssetUrl,
   useLocalStorage,
 } from "../helper";
 
-export function getOwnerIdAndRecordIdFromRecordUri(recordUri: string) {
+const RECORD_URI_PREFIX = "resrec:///";
+
+// "resrec:///U-xxxx/R-xxxx" を分解し、形式が正しいかどうかも返す
+export function parseRecordUri(recordUri: string) {
   const strList = _.split(recordUri, "/");
   const recordId = _.last(strList);
   const ownerId = _.get(strList, _.size(strList) - 2);
-  return { ownerId: ownerId, recordId: recordId };
+  const isValid =
+    _.startsWith(recordUri, RECORD_URI_PREFIX) &&
+    (_.startsWith(ownerId, "U-") || _.startsWith(ownerId, "G-")) &&
+    _.startsWith(recordId, "R-");
+  return { ownerId, recordId, isValid };
+}
+
+// "Inventory\\Foo" -> "Inventory / Foo"
+export function formatInventoryPath(path: string): string {
+  return _.replace(path, /\\/g, " / ");
 }
 
 export function getPath(slug: string | Array<string>) {
@@ -48,7 +59,7 @@ function getCurrentDirectoryName({ path }: RecordInterface) {
   return _.last(_.split(path, /\\|\//));
 }
 
-function getViewerLink(record) {
+function getViewerLink(record: RecordInterface) {
   const { name, recordType } = record;
   switch (recordType) {
     case "link":
@@ -90,7 +101,7 @@ function getLink(record: RecordInterface): LinkInterface {
   }
 }
 
-const recordKeys = [
+const recordKeys: (keyof RecordInterface)[] = [
   "id",
   "recordType",
   "name",
@@ -118,6 +129,20 @@ interface RecordInterface {
   assetUri?: string;
 }
 
+function toInventoryRecord(record: RecordInterface) {
+  return {
+    ...record,
+    assetOwnerId: getAssetOwnerId(record),
+    webThumbnailUri: getWebThumbnailUri(record),
+    recordUri: getRecordUri(record),
+    assetId: getAssetId(record),
+    viewerLink: getViewerLink(record),
+    link: getLink(record),
+  };
+}
+
+export type InventoryRecord = ReturnType<typeof toInventoryRecord>;
+
 export function useInventory(ownerId: string, path: string) {
   const result = useSWR<RecordInterface[]>(
     ownerId && path
@@ -125,44 +150,7 @@ export function useInventory(ownerId: string, path: string) {
       : null,
     fetcher
   );
-
-  const data = _.map(result.data, (record) => {
-    const {
-      id,
-      recordType,
-      name,
-      assetUri,
-      thumbnailUri,
-      creationTime,
-      ownerId,
-      ownerName,
-      lastModificationTime,
-      lastModifyingUserId,
-    } = record;
-    return {
-      id,
-      recordType,
-      name,
-      assetUri,
-      thumbnailUri,
-      creationTime,
-      ownerId,
-      ownerName,
-      lastModificationTime,
-      lastModifyingUserId,
-      assetOwnerId: getAssetOwnerId(record),
-      webThumbnailUri: getWebThumbnailUri(record),
-      recordUri: getRecordUri(record),
-      assetId: getAssetId(record),
-      viewerLink: getViewerLink(record),
-      link: getLink(record),
-    };
-  });
-  return { ...result, ...{ data } };
-}
-
-export function useInventoryLinkActive(ownerId: string, path: string) {
-  return useInventory(ownerId, path);
+  return { ...result, data: _.map(result.data, toInventoryRecord) };
 }
 
 export function useLinkRedirect(ownerId: string, recordId: string) {
@@ -190,7 +178,7 @@ export async function downloadAssetAsBrson(
   name: string,
   assetUri: string
 ) {
-  await downloadBinary(
+  await download(
     `/resonite/assets/${assetId}`,
     `${name}.${assetUri.endsWith("7zbson") ? "7zbson" : "brson"}`
   );
@@ -215,12 +203,7 @@ export interface LinkInterface {
 
 export function useLocalLinks() {
   const [state, setState] = useLocalStorage("Inventory.LocalLinks");
-  if (typeof setState === "string") {
-    throw new Error(
-      `type error. state is ${typeof state}. setState is ${typeof setState}`
-    );
-  }
-  const links = parseJson(typeof state === "string" ? state : "[]", []);
+  const links: LinkInterface[] = parseJson(state ?? "[]", []);
   const setLinks = (newLinks: LinkInterface[]) => {
     setState(JSON.stringify(newLinks));
   };
