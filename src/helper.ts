@@ -69,9 +69,11 @@ export function eraseResoniteRichTextTag(text: string): string {
   );
 }
 
-// resdb:///<hash>.<ext> 形式をブラウザで表示可能な URL に変換する
+// resdb:///<hash>.<ext> 形式をブラウザで表示可能な URL に変換する。
+// セッションのサムネイルのように既に http(s) の URL ならそのまま返す。
 export function toWebAssetUrl(resdbUri?: string | null): string | undefined {
   if (!resdbUri) return undefined;
+  if (!resdbUri.startsWith("resdb:///")) return resdbUri;
   const fileName = resdbUri.split("/").pop() ?? "";
   return `https://assets.resonite.com/${fileName.split(".")[0]}`;
 }
