@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useRouter } from "next/router";
 import _ from "lodash";
-import styled from "styled-components";
 import {
   formatInventoryPath,
   parseRecordUri,
@@ -41,10 +40,6 @@ const COMMON_LINKS = [
   { name: "JP Publics", ownerId: "G-Shared-Project-rheni", path: "Inventory" },
   { name: "1Public Folders", ownerId: "U-Staccato", path: "Inventory" },
 ];
-
-const TextFiledStyle = styled.input`
-  width: 400px;
-`;
 
 function LinkItem({
   name,

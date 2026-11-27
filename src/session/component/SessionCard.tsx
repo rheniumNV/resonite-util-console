@@ -34,7 +34,6 @@ export default function SessionCard({ session }) {
     sessionUsers,
     hostUsername,
     totalActiveUsers,
-    sessionBeginTime,
     headlessHost,
     maxUsers,
     sessionId,
