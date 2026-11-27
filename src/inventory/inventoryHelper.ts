@@ -163,7 +163,7 @@ export function useInventory(ownerId: string, path: string) {
 }
 
 export function useLinkRedirect(ownerId: string, recordId: string) {
-  const { data } = useSWR<{ ownerId: string; path: string }>(
+  const { data, error } = useSWR<{ ownerId: string; path: string }>(
     ownerId && recordId ? getLinkApiUrl(ownerId, recordId) : null,
     fetcher
   );
@@ -174,6 +174,7 @@ export function useLinkRedirect(ownerId: string, recordId: string) {
       router.replace(toViewerUrl(ownerId, path));
     }
   }, [data]);
+  return { error };
 }
 
 export async function downloadAssetAsBrson(

@@ -198,10 +198,14 @@ const Index = () => {
                 onClick={async () => {
                   const sameLink = getLink(linkText);
                   if (!sameLink) {
-                    const record = await (
-                      await fetch(getLinkApiUrl(linkOwnerId, linkRecordId))
-                    ).json();
-                    const { name, path } = record;
+                    const response = await fetch(
+                      getLinkApiUrl(linkOwnerId, linkRecordId)
+                    ).catch(() => undefined);
+                    if (!response?.ok) {
+                      window.alert("Failed to load this inventory link.");
+                      return;
+                    }
+                    const { name, path } = await response.json();
                     pushLink({
                       link: linkText,
                       ownerId: linkOwnerId,
@@ -210,7 +214,7 @@ const Index = () => {
                       name,
                     });
                   } else {
-                    window.alert(`"${sameLink.name}" is already exists.`);
+                    window.alert(`"${sameLink.name}" already exists.`);
                   }
                 }}
               >

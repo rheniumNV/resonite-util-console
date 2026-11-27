@@ -18,8 +18,12 @@ export function copy(text: string): void {
   navigator.clipboard.writeText(text);
 }
 
+// エラー応答 (4xx/5xx) は例外にして、SWR の error として扱えるようにする
 export async function fetcher(url: string): Promise<any> {
   const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`${response.status} ${response.statusText}`.trim());
+  }
   return response.json();
 }
 
