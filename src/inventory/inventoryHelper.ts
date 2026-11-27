@@ -7,6 +7,7 @@ import {
   downloadBinary,
   fetcher,
   parseJson,
+  toWebAssetUrl,
   useLocalStorage,
 } from "../helper";
 
@@ -32,10 +33,7 @@ function getAssetOwnerId({ ownerId, recordType, assetUri }: RecordInterface) {
 }
 
 function getWebThumbnailUri({ thumbnailUri }: RecordInterface) {
-  return thumbnailUri
-    ? "https://assets.resonite.com/" +
-        _.first(_.split(_.last(_.split(thumbnailUri, "/")), "."))
-    : undefined;
+  return toWebAssetUrl(thumbnailUri);
 }
 
 function getRecordUri({ ownerId, id }: RecordInterface) {
