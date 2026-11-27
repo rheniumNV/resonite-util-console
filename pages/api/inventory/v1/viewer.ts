@@ -33,24 +33,28 @@ function sortItem(list, useSort) {
     : list;
 }
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
+export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
-    const { ownerId, path, useEmap, keys, useSort } = req.query;
-    const ownerType = _.startsWith(ownerId as string, "U-")
-      ? "users"
-      : "groups";
+    try {
+      const { ownerId, path, useEmap, keys, useSort } = req.query;
+      const ownerType = _.startsWith(ownerId as string, "U-")
+        ? "users"
+        : "groups";
 
-    const fixedPath = encodeURI(
-      _.replace(path as string, new RegExp("/", "g"), "\\")
-    );
-    axios
-      .get(
+      const fixedPath = encodeURI(
+        _.replace(path as string, new RegExp("/", "g"), "\\")
+      );
+      const response = await axios.get(
         `https://api.resonite.com/${ownerType}/${ownerId}/records?path=${fixedPath}`
-      )
-      .then((response) => {
-        const result = filterItem(sortItem(response.data, useSort), keys);
-        res.setHeader("Content-Type", "application/json");
-        res.status(200).json(useEmap ? json2emap(result) : result);
-      });
+      );
+      const result = filterItem(sortItem(response.data, useSort), keys);
+      res.setHeader("Content-Type", "application/json");
+      res.status(200).json(useEmap ? json2emap(result) : result);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send("error");
+    }
+  } else {
+    res.status(404).send("error");
   }
 };
