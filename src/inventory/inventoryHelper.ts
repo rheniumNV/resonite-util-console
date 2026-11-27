@@ -29,13 +29,26 @@ export function formatInventoryPath(path: string): string {
   return _.replace(path, /\\/g, " / ");
 }
 
-export function getPath(slug: string | Array<string>) {
-  if (typeof slug === "string") {
-    return encodeURI(slug);
-  }
-  return _(slug)
-    .map((text) => encodeURI(text))
+// "Inventory\\A&B" や "Inventory/A&B" から viewer ページの URL を作る。
+// "&" "#" "?" などを含むフォルダ名でも壊れないよう、セグメントごとにエンコードする
+export function toViewerUrl(ownerId: string, path: string): string {
+  const encodedPath = _(_.split(path, /\\|\//))
+    .compact()
+    .map(encodeURIComponent)
     .join("/");
+  return `/inventory/v1/viewer/${encodeURIComponent(ownerId)}/${encodedPath}`;
+}
+
+export function toLinkUrl(ownerId: string, recordId: string): string {
+  return `/inventory/v1/link/${encodeURIComponent(
+    ownerId
+  )}/${encodeURIComponent(recordId)}`;
+}
+
+export function getLinkApiUrl(ownerId: string, recordId: string): string {
+  return `/api/inventory/v1/link?ownerId=${encodeURIComponent(
+    ownerId
+  )}&recordId=${encodeURIComponent(recordId)}`;
 }
 function getAssetOwnerId({ ownerId, recordType, assetUri }: RecordInterface) {
   return recordType === "link"
@@ -55,20 +68,13 @@ function getAssetId({ assetUri }: RecordInterface) {
   return _.first(_.split(_.last(_.split(assetUri, "/")), "."));
 }
 
-function getCurrentDirectoryName({ path }: RecordInterface) {
-  return _.last(_.split(path, /\\|\//));
-}
-
 function getViewerLink(record: RecordInterface) {
-  const { name, recordType } = record;
+  const { name, recordType, ownerId, path } = record;
   switch (recordType) {
     case "link":
-      const assetOwnerId = getAssetOwnerId(record);
-      const assetId = getAssetId(record);
-      return `/inventory/v1/link/${assetOwnerId}/${assetId}`;
+      return toLinkUrl(getAssetOwnerId(record), getAssetId(record));
     case "directory":
-      const currentDirectoryName = getCurrentDirectoryName(record);
-      return `${currentDirectoryName}/${encodeURI(name)}`;
+      return toViewerUrl(ownerId, `${path}\\${name}`);
     default:
       return undefined;
   }
@@ -143,10 +149,13 @@ function toInventoryRecord(record: RecordInterface) {
 
 export type InventoryRecord = ReturnType<typeof toInventoryRecord>;
 
+// path はエンコード前のもの ("Inventory/A&B" など)
 export function useInventory(ownerId: string, path: string) {
   const result = useSWR<RecordInterface[]>(
     ownerId && path
-      ? `/api/inventory/v1/viewer?ownerId=${ownerId}&path=${path}&keys=${recordKeys}&useSort=true`
+      ? `/api/inventory/v1/viewer?ownerId=${encodeURIComponent(
+          ownerId
+        )}&path=${encodeURIComponent(path)}&keys=${recordKeys}&useSort=true`
       : null,
     fetcher
   );
@@ -155,20 +164,14 @@ export function useInventory(ownerId: string, path: string) {
 
 export function useLinkRedirect(ownerId: string, recordId: string) {
   const { data } = useSWR<{ ownerId: string; path: string }>(
-    ownerId && recordId
-      ? `/api/inventory/v1/link?ownerId=${ownerId}&recordId=${recordId}`
-      : null,
+    ownerId && recordId ? getLinkApiUrl(ownerId, recordId) : null,
     fetcher
   );
   const router = useRouter();
   useEffect(() => {
     const { ownerId, path } = data ?? {};
     if (ownerId && path) {
-      router.replace(
-        `/inventory/v1/viewer/${ownerId}/${encodeURI(
-          _.replace(path, /\\/g, "/")
-        )}`
-      );
+      router.replace(toViewerUrl(ownerId, path));
     }
   }, [data]);
 }
