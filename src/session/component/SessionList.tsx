@@ -3,13 +3,12 @@ import useSWR from "swr";
 import _ from "lodash";
 import { fetcher } from "../../../src/helper";
 import SessionCard from "./SessionCard";
-import styled from "styled-components";
 import { Box, CircularProgress, Grid, Container } from "@mui/material";
 
 // 初回に表示する件数と、スクロールで追加する件数
 const PAGE_SIZE = 20;
 
-export default function Index(_prop) {
+export default function Index() {
   const { data: sessions } = useSWR<any[]>(
     "/api/session/v1/list?rejectKeys=tags",
     fetcher

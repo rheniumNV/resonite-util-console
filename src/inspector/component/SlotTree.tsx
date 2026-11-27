@@ -13,21 +13,8 @@ import Divider from "@mui/material/Divider";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import Grid from "@mui/material/Grid";
 
-declare module "react" {
-  interface CSSProperties {
-    "--tree-view-color"?: string;
-    "--tree-view-bg-color"?: string;
-  }
-}
-
 function StyledTreeItem(props) {
-  const {
-    labelIcon: LabelIcon,
-    slot,
-    openNodes,
-    deps = 0,
-    pushSlotMap,
-  } = props;
+  const { slot, openNodes, pushSlotMap } = props;
 
   const Name = _.get(slot, ["Name", "Data"]);
   const [opened, setOpened] = React.useState(false);
@@ -57,7 +44,6 @@ function StyledTreeItem(props) {
                     key={id}
                     slot={child}
                     openNodes={openNodes}
-                    deps={deps + 1}
                   />
                 );
               })}
@@ -71,8 +57,6 @@ function StyledTreeItem(props) {
 function InspectorSlot({ slot }) {
   const Name = _.get(slot, ["Name", "Data"]);
   const Components = _.get(slot, ["Components", "Data"], []);
-  const Position = _.get(slot, ["Position"]);
-  console.log(Position);
 
   return (
     <Stack spacing={2}>
@@ -83,7 +67,6 @@ function InspectorSlot({ slot }) {
         const type = _.get(component, ["Type"]);
         const data = _.get(component, ["Data"]);
         const id = _.get(component, ["Data", "ID"]);
-        const props = _.get(component, ["Properties"]);
         return (
           <Card key={id} sx={{ padding: 2 }}>
             <Stack spacing={1.5}>

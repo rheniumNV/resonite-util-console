@@ -183,15 +183,6 @@ export async function downloadAssetAsBrson(
     `${name}.${assetUri.endsWith("7zbson") ? "7zbson" : "brson"}`
   );
 }
-export async function downloadAssetAsJson(assetId: string, name: string) {
-  await download(`https://decompress.kokoa.dev/?id=${assetId}`, `${name}.json`);
-}
-export async function downloadAssetAsNeosScript(assetId: string, name: string) {
-  await download(
-    `/api/inventory/v1/neosscript?id=${_.first(_.split(assetId, "."))}`,
-    `${name}.tsx`
-  );
-}
 
 export interface LinkInterface {
   name: string;

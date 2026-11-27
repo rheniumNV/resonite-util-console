@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import _ from "lodash";
 import {
   downloadAssetAsBrson as downloadAsset,
@@ -23,14 +23,11 @@ import CopyIcon from "@mui/icons-material/ContentCopy";
 import DownloadIcon from "@mui/icons-material/Download";
 import DownloadDoneIcon from "@mui/icons-material/DownloadDone";
 import MoreHorizTwoToneIcon from "@mui/icons-material/MoreHorizTwoTone";
-import InspectIcon from "@mui/icons-material/ManageSearch";
-import AnalyzeIcon from "@mui/icons-material/FindInPage";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import FolderSharedIcon from "@mui/icons-material/FolderShared";
 import moment from "moment";
 import MenuButtonWithLoading from "../../common/component/MenuButtonWithLoading";
-import { useRouter } from "next/router";
 
 export function RecordCard({
   recordType,
@@ -41,17 +38,12 @@ export function RecordCard({
   assetId,
   assetUri,
   link,
-  ownerName,
-  lastModificationTime,
   lastModifyingUserId,
-  assetOwnerId,
   creationTime,
 }: InventoryRecord) {
-  const [showButton, setShowButton] = useState<boolean>(false);
   const { getLink, pushLink, removeLink } = useLocalLinks();
   const isFav = !!getLink(_.get(link, "link"));
   const [modeState] = useLocalStorage("Util.Mode");
-  const router = useRouter();
 
   const displayName = _.slice(eraseResoniteRichTextTag(name), 0, 256);
 
@@ -69,12 +61,21 @@ export function RecordCard({
   const [snackbarMessage, setSnackbarMessage] = React.useState<string | null>(
     null
   );
-  const handleSetSnackbar = (message: string) => {
-    setSnackbarMessage(message);
-  };
   const handleCloseSnackbar = () => {
     setSnackbarMessage(null);
   };
+
+  const renderCopyMenuItem = (label: string, text: string) => (
+    <MenuButtonWithLoading
+      handleAction={async () => {
+        copy(text);
+        setSnackbarMessage(label);
+      }}
+      SuccessIcon={CheckIcon}
+      DefaultIcon={CopyIcon}
+      name={label}
+    />
+  );
 
   return (
     <TableRow sx={{ "&:last-child td, &:last-child th": { border: 0 } }} hover>
@@ -141,28 +142,11 @@ export function RecordCard({
           anchorEl={menuAnchorEl}
         >
           <MenuList>
-            {modeState === "advanced" && (
-              <MenuButtonWithLoading
-                handleAction={async () => {
-                  copy(recordUri);
-                  setSnackbarMessage("Copy RecordUri");
-                }}
-                SuccessIcon={CheckIcon}
-                DefaultIcon={CopyIcon}
-                name={"Copy RecordUri"}
-              />
-            )}
+            {modeState === "advanced" &&
+              renderCopyMenuItem("Copy RecordUri", recordUri)}
             {recordType === "object" && (
               <>
-                <MenuButtonWithLoading
-                  handleAction={async () => {
-                    copy(assetUri);
-                    setSnackbarMessage("Copy AssetUri");
-                  }}
-                  SuccessIcon={CheckIcon}
-                  DefaultIcon={CopyIcon}
-                  name={"Copy AssetUri"}
-                />
+                {renderCopyMenuItem("Copy AssetUri", assetUri)}
                 <Divider />
                 <MenuButtonWithLoading
                   handleAction={async () => {
@@ -173,61 +157,13 @@ export function RecordCard({
                   DefaultIcon={DownloadIcon}
                   name={"Download Asset"}
                 />
-                {modeState === "advanced" && (
-                  <>
-                    {/* <MenuButtonWithLoading
-                      handleAction={async () => {
-                        await downloadAssetAsJson(assetId, name);
-                        setSnackbarMessage("Download Json");
-                      }}
-                      SuccessIcon={DownloadDoneIcon}
-                      DefaultIcon={DownloadIcon}
-                      name={"Download Json"}
-                    /> */}
-                    {/* <MenuButtonWithLoading
-                      handleAction={async () => {
-                        await downloadAssetAsNeosScript(assetId, name);
-                        setSnackbarMessage("Download NeosScript");
-                      }}
-                      SuccessIcon={DownloadDoneIcon}
-                      DefaultIcon={DownloadIcon}
-                      name={"Download NeosScript"}
-                    /> */}
-                    {/* <MenuButtonWithLoading
-                      handleAction={async () => {
-                        window.open(`/inspector/v1/viewer?assetId=${assetId}`);
-                      }}
-                      SuccessIcon={DownloadDoneIcon}
-                      DefaultIcon={InspectIcon}
-                      name={"Inspect β"}
-                    /> */}
-                    {/* <MenuButtonWithLoading
-                      handleAction={async () => {
-                        window.open(
-                          `/inspector/v1/analyzer?assetId=${assetId}`
-                        );
-                      }}
-                      SuccessIcon={DownloadDoneIcon}
-                      DefaultIcon={AnalyzeIcon}
-                      name={"Analyze β"}
-                    /> */}
-                  </>
-                )}
               </>
             )}
-            {recordType != "object" && (
-              <>
-                <MenuButtonWithLoading
-                  handleAction={async () => {
-                    copy(recordType === "link" ? assetUri : recordUri);
-                    setSnackbarMessage("Copy InventoryLink");
-                  }}
-                  SuccessIcon={CheckIcon}
-                  DefaultIcon={CopyIcon}
-                  name={"Copy InventoryLink"}
-                />
-              </>
-            )}
+            {recordType != "object" &&
+              renderCopyMenuItem(
+                "Copy InventoryLink",
+                recordType === "link" ? assetUri : recordUri
+              )}
           </MenuList>
         </Menu>
         <Snackbar

@@ -9,7 +9,6 @@ import _ from "lodash";
 
 export default function AppBarTop() {
   const router = useRouter();
-  router.basePath;
   const appCode = _.get(_.split(router.pathname, "/"), 1);
   const appInfo = _.get(
     {
@@ -24,16 +23,6 @@ export default function AppBarTop() {
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">
         <Toolbar>
-          {/* <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton> */}
-
           <Breadcrumbs
             aria-label="breadcrumb"
             sx={{ color: "white", fontsize: 30 }}
