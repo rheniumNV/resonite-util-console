@@ -9,7 +9,37 @@ function getOwnerType(ownerId: string): "users" | "groups" {
 }
 
 export function getRecordsUrl(ownerId: string): string {
-  return `${RESONITE_API_BASE}/${getOwnerType(ownerId)}/${ownerId}/records`;
+  return `${RESONITE_API_BASE}/${getOwnerType(ownerId)}/${encodeURIComponent(
+    ownerId
+  )}/records`;
+}
+
+// クエリの ID をそのまま上流の URL に埋め込むと、"../" や "?" で
+// Resonite API の任意のエンドポイントを叩けてしまうため形式を検証する
+export const ID_PATTERNS = {
+  ownerId: /^[UG]-[A-Za-z0-9_.-]+$/,
+  recordId: /^R-[A-Za-z0-9-]+$/,
+  assetId: /^[A-Za-z0-9]+$/,
+};
+
+export class BadRequestError extends Error {
+  constructor(message: string) {
+    super(message);
+    // target: es5 でも instanceof が効くようにする
+    Object.setPrototypeOf(this, BadRequestError.prototype);
+  }
+}
+
+export function getQueryString(
+  req: NextApiRequest,
+  name: string,
+  pattern?: RegExp
+): string {
+  const value = req.query[name];
+  if (typeof value !== "string" || (pattern && !pattern.test(value))) {
+    throw new BadRequestError(`invalid ${name}`);
+  }
+  return value;
 }
 
 // "a,b" / "[a,b]" / 複数指定 (?key=a&key=b) のいずれも配列として受け付ける
@@ -21,7 +51,7 @@ export function parseListQuery(value: string | string[] | undefined): string[] {
     .value();
 }
 
-// GET 以外は 404、例外は 500 を返す共通ラッパー
+// GET 以外は 404、不正なクエリは 400、その他の例外は 500 を返す共通ラッパー
 export function createGetHandler(
   handler: (req: NextApiRequest, res: NextApiResponse) => Promise<void>
 ) {
@@ -33,6 +63,10 @@ export function createGetHandler(
     try {
       await handler(req, res);
     } catch (error) {
+      if (error instanceof BadRequestError) {
+        res.status(400).send(error.message);
+        return;
+      }
       console.error(error);
       res.status(500).send("error");
     }
