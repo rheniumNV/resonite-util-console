@@ -3,7 +3,10 @@ import { useRouter } from "next/router";
 import _ from "lodash";
 import {
   formatInventoryPath,
+  getLinkApiUrl,
   parseRecordUri,
+  toLinkUrl,
+  toViewerUrl,
   useLocalLinks,
 } from "../../../src/inventory/inventoryHelper";
 import {
@@ -73,9 +76,9 @@ function LinkItem({
     //https://github.com/rheniumNV/neos-util-console/issues/17
     //一旦使えるようにする。
     if (recordId) {
-      router.push(`link/${ownerId}/${recordId}`);
+      router.push(toLinkUrl(ownerId, recordId));
     } else {
-      router.push(`viewer/${ownerId}/${path}/${name}`);
+      router.push(toViewerUrl(ownerId, `${path}\\${name}`));
     }
   };
 
@@ -179,9 +182,7 @@ const Index = () => {
                 endIcon={<ArrowRightIcon />}
                 disabled={!linkTextIsValid}
                 onClick={() => {
-                  router.replace(
-                    `/inventory/v1/link/${linkOwnerId}/${linkRecordId}`
-                  );
+                  router.replace(toLinkUrl(linkOwnerId, linkRecordId));
                 }}
               >
                 Open
@@ -198,9 +199,7 @@ const Index = () => {
                   const sameLink = getLink(linkText);
                   if (!sameLink) {
                     const record = await (
-                      await fetch(
-                        `/api/inventory/v1/link?ownerId=${linkOwnerId}&recordId=${linkRecordId}`
-                      )
+                      await fetch(getLinkApiUrl(linkOwnerId, linkRecordId))
                     ).json();
                     const { name, path } = record;
                     pushLink({

@@ -1,7 +1,7 @@
 import React from "react";
 import _ from "lodash";
 import { useRouter } from "next/router";
-import { getPath, useInventory } from "../inventoryHelper";
+import { toViewerUrl, useInventory } from "../inventoryHelper";
 import { RecordCard } from "./RecordCard";
 import {
   Container,
@@ -22,7 +22,7 @@ import { useLocalStorage } from "../../helper";
 function InventoryLink({ name, ownerId, path }) {
   const { data } = useInventory(ownerId, path);
   const dataSize = _.size(data);
-  const link = `/inventory/v1/viewer/${ownerId}/${path}`;
+  const link = toViewerUrl(ownerId, path);
   if (dataSize > 0) {
     return (
       <Link underline="hover" color="inherit" href={link}>
@@ -40,7 +40,8 @@ export default function InventoryList() {
 
   const [modeState] = useLocalStorage("Util.Mode");
 
-  const path = slug ? getPath(slug) : undefined;
+  // router.query.slug はデコード済みのセグメント
+  const path = slug ? _.join(_.castArray(slug), "/") : undefined;
   const { data } = useInventory(
     typeof ownerId === "string" ? ownerId : undefined,
     path
