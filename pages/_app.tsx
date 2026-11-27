@@ -6,11 +6,11 @@ import { AppProps } from "next/app";
 import dynamic from "next/dynamic";
 import AppBarTop from "../src/common/component/AppBarTop";
 
-const App = ({ Component, pageProps }: AppProps) => {
-  const SafeHydrate = dynamic(() => import("../src/SafeHydrate"), {
-    ssr: false,
-  });
+const SafeHydrate = dynamic(() => import("../src/SafeHydrate"), {
+  ssr: false,
+});
 
+const App = ({ Component, pageProps }: AppProps) => {
   return (
     <>
       <Head>

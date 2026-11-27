@@ -251,8 +251,8 @@ const Index = () => {
             <ListItemIcon>
               <CloudIcon />
             </ListItemIcon>
-            <ListItemText primary="Common (5)" />
-            {favoritesOpened ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            <ListItemText primary="Common (4)" />
+            {standardOpened ? <ExpandLessIcon /> : <ExpandMoreIcon />}
           </ListItemButton>
           <Collapse in={standardOpened} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>

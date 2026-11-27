@@ -44,13 +44,15 @@ export default function InventoryList() {
 
   const [modeState] = useLocalStorage("Util.Mode");
 
+  const path = slug ? getPath(slug) : undefined;
+  const { data } = useInventory(
+    typeof ownerId === "string" ? ownerId : undefined,
+    path
+  );
+
   if (typeof ownerId !== "string") {
     return <p>Error</p>;
   }
-
-  const path = getPath(slug);
-
-  const { data } = useInventory(ownerId, path);
   return (
     <Container sx={{ marginBottom: 10 }}>
       <Box
