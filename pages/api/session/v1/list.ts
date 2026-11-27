@@ -7,13 +7,19 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
     try {
       const { useEmap, rejectKeys = [] } = req.query;
+      // "a,b" / "[a,b]" / 複数指定 (?rejectKeys=a&rejectKeys=b) のいずれも受け付ける
+      const rejectKeyList = _(_.castArray(rejectKeys))
+        .flatMap((value) => _.split(_.trim(value, "[] "), ","))
+        .map((value) => _.trim(value))
+        .compact()
+        .value();
       const response = await axios.get(
         `https://api.resonite.com/sessions?includeEmptyHeadless=false&minActiveUsers=1`
       );
       const result = _.map(response.data, (session) =>
         _(session)
           .map((value, key) => ({ key, value }))
-          .reject(({ key }) => _.includes(rejectKeys, `${key}`))
+          .reject(({ key }) => _.includes(rejectKeyList, `${key}`))
           .reduce((prev, { key, value }) => ({ ...prev, [key]: value }), {})
       );
       res.setHeader("Content-Type", "application/json");

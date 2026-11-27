@@ -8,7 +8,7 @@ import { Grid, Container } from "@mui/material";
 
 export default function Index(_prop) {
   const { data: sessions } = useSWR(
-    "/api/session/v1/list?rejectTags=[tags]",
+    "/api/session/v1/list?rejectKeys=tags",
     fetcher
   );
 

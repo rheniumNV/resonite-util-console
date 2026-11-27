@@ -10,7 +10,7 @@ async function processTree(slot, func) {
   await Promise.all(Children.map((child) => processTree(child, func)));
 }
 
-function analyzeSlot(slot) {
+function useSlotAnalysis(slot) {
   const [slotCount, setSlotCount] = useState<number>(0);
   const [componentMap, setComponentMap] = useState<{ [key: string]: number }>(
     {}
@@ -18,6 +18,7 @@ function analyzeSlot(slot) {
 
   useEffect(() => {
     setSlotCount(0);
+    setComponentMap({});
     (async () => {
       await processTree(slot, (slot) => {
         if (slot) {
@@ -47,7 +48,7 @@ export default function Index() {
   const { data } = useAssetAsJson(assetId);
   const rootSlot = _.get(data, ["Object"], _.get(data, ["Slots"]));
 
-  const { slotCount, componentMap } = analyzeSlot(rootSlot);
+  const { slotCount, componentMap } = useSlotAnalysis(rootSlot);
 
   return (
     <>

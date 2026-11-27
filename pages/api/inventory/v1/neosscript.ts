@@ -172,9 +172,9 @@ function resolveSlot(
   </components>
   <children>
   ${_(Children)
-    .map((s) => resolveSlot(s, refCountMap, [], addProp, deps + 1))
+    .map((s) => resolveSlot(s, refCountMap, [], [], addProp, deps + 1))
     .join("")}
-  ${isParentAnchor && `{${parentAnchorName}}`}
+  ${isParentAnchor ? `{${parentAnchorName}}` : ""}
   </children>
   <assets>
   ${_(assets)

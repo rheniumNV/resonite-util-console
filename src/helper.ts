@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useSyncExternalStore } from "react";
 
 export async function download(targetUrl: string, fileName: string) {
   const response = await fetch(targetUrl);
@@ -32,12 +32,32 @@ export async function fetcher(url: string): Promise<any> {
   return response.json();
 }
 
-export function useLocalStorage(key: string) {
-  const [state, setState] = useState(localStorage.getItem(key));
-  const setStorage = (newData) => {
-    localStorage.setItem(key, newData);
-    setState(newData);
+const localStorageListeners = new Set<() => void>();
+
+function subscribeLocalStorage(listener: () => void) {
+  localStorageListeners.add(listener);
+  window.addEventListener("storage", listener);
+  return () => {
+    localStorageListeners.delete(listener);
+    window.removeEventListener("storage", listener);
   };
+}
+
+// 同じキーを使う全コンポーネントが同じ値を参照するよう、
+// localStorage を外部ストアとして購読する。
+export function useLocalStorage(key: string) {
+  const state = useSyncExternalStore(
+    subscribeLocalStorage,
+    () => localStorage.getItem(key),
+    () => null
+  );
+  const setStorage = useCallback(
+    (newData: string) => {
+      localStorage.setItem(key, newData);
+      localStorageListeners.forEach((listener) => listener());
+    },
+    [key]
+  );
   return [state, setStorage];
 }
 
@@ -51,7 +71,7 @@ export function parseJson(str: string, fallbackValue: any = {}) {
 
 export function eraseResoniteRichTextTag(text: string): string {
   return text.replace(
-    /<align=(left|center|right)>|<\/align>|<color=[^<>]*>|<\/color>|<b>|<\/b>|<i>|<\/i>|<lowercase>|<\/lowercase>|<uppercase>|<\/uppercase>|<smallcaps>|<\/smallcaps>|<mark=[^<>]>|<\/mark>|<noparse>|<\/noparse>|<nobr>|<\/nobr>|<size=[^<>]*>|<\/size>|<s>|<\/s>|<u>|<\/u>|<sub>|<\/sub>|<sup>|<\/sup>/g,
+    /<align=(left|center|right)>|<\/align>|<color=[^<>]*>|<\/color>|<b>|<\/b>|<i>|<\/i>|<lowercase>|<\/lowercase>|<uppercase>|<\/uppercase>|<smallcaps>|<\/smallcaps>|<mark=[^<>]*>|<\/mark>|<noparse>|<\/noparse>|<nobr>|<\/nobr>|<size=[^<>]*>|<\/size>|<s>|<\/s>|<u>|<\/u>|<sub>|<\/sub>|<sup>|<\/sup>/g,
     ""
   );
 }
