@@ -1,10 +1,10 @@
-import axios from "axios";
 import _ from "lodash";
 import {
   createGetJsonHandler,
   getRecordsUrl,
   parseListQuery,
 } from "../../../../src/server/apiHandler";
+import { TTL, cachedGet } from "../../../../src/server/cache";
 
 const recordTypeOrder = { directory: 0, link: 0, object: 1 };
 
@@ -22,10 +22,11 @@ export default createGetJsonHandler(async (req) => {
   const keys = parseListQuery(req.query.keys);
 
   const fixedPath = encodeURI(_.replace(path, /\//g, "\\"));
-  const response = await axios.get(
-    `${getRecordsUrl(ownerId)}?path=${fixedPath}`
+  const fetched = await cachedGet(
+    `${getRecordsUrl(ownerId)}?path=${fixedPath}`,
+    TTL.records
   );
-  const records = useSort ? sortRecords(response.data) : response.data;
+  const records = useSort ? sortRecords(fetched) : fetched;
   return _.isEmpty(keys)
     ? records
     : _.map(records, (record) =>

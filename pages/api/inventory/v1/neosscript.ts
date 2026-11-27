@@ -1,6 +1,6 @@
-import axios from "axios";
 import _ from "lodash";
 import { createGetHandler } from "../../../../src/server/apiHandler";
+import { TTL, cachedGet } from "../../../../src/server/cache";
 
 const SLOT_MEMBER_NAMES = [
   "Name",
@@ -245,8 +245,9 @@ function createSlotRefList(slot) {
 }
 
 export default createGetHandler(async (req, res) => {
-  const { data } = await axios.get(
-    `https://decompress.kokoa.dev/?id=${req.query.id}`
+  const data = await cachedGet(
+    `https://decompress.kokoa.dev/?id=${req.query.id}`,
+    TTL.asset
   );
   const rootSlot = _.get(data, "Object", {});
   const assets = _.get(data, "Assets", []);
