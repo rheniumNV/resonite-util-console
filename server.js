@@ -22,6 +22,15 @@ app.prepare().then(() => {
         console.log(newPath);
         return newPath;
       },
+      on: {
+        // アセットはハッシュで識別され内容が変わらないので、ブラウザに長くキャッシュさせる
+        proxyRes: (proxyRes) => {
+          if (proxyRes.statusCode === 200) {
+            proxyRes.headers["cache-control"] =
+              "public, max-age=31536000, immutable";
+          }
+        },
+      },
     })
   );
 
