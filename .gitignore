@@ -31,3 +31,6 @@ yarn-error.log*
 
 # next.js generated types
 next-env.d.ts
+
+# typescript incremental build info
+*.tsbuildinfo
