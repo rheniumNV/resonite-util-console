@@ -1,0 +1,12 @@
+.git
+.gitignore
+.next
+node_modules
+npm-debug.log*
+Dockerfile
+.dockerignore
+compose.yaml
+README.md
+.env*
+next-env.d.ts
+*.tsbuildinfo
